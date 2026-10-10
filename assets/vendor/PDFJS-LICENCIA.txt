@@ -1,0 +1,8 @@
+PDF.js 3.11.174
+Copyright Mozilla Foundation and contributors
+Licensed under the Apache License, Version 2.0
+https://github.com/mozilla/pdf.js/blob/master/LICENSE
+
+Los archivos pdf.min.pdfjs y pdf.worker.min.pdfjs son la distribución
+minificada de PDF.js. La app los copia al caché del dispositivo con
+extensión .js para mostrar los temarios sin conexión.

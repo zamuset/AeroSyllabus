@@ -4,6 +4,12 @@ set -eu
 root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 cd "$root"
 
+if [ -s "$HOME/.nvm/nvm.sh" ]; then
+  # shellcheck disable=SC1090
+  . "$HOME/.nvm/nvm.sh"
+  nvm use
+fi
+
 npm run build:web
 
 remote=$(git remote get-url origin)

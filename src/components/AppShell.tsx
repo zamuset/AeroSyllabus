@@ -29,27 +29,33 @@ export function AppShell({ children }: { children: ReactNode }) {
       <StatusBar style="light" />
       <View style={styles.body}>
         {wide ? (
-          <View style={[styles.sidebar, { paddingBottom: Math.max(insets.bottom, 24) }]}>
-            <View style={styles.brandBlock}>
-              <ImageSlot imageKey="marca/logo.png" label="Logotipo" aspectRatio={16 / 9} fit="contain" />
-              <Text style={styles.brandKicker}>Programa de vuelo</Text>
-              <Text style={styles.brand}>AeroSyllabus</Text>
-            </View>
-            <View style={styles.nav}>
-              {NAV.map((item) => (
-                <NavItem key={item.href} item={item} />
-              ))}
-            </View>
-            <ConnectivityBlock />
-            {user ? (
-              <View style={styles.userBlock}>
-                <Text style={styles.userName}>{displayName(user.tratamiento, user.nombre)}</Text>
-                <Text style={styles.userRole}>{user.rolLabel}</Text>
-                <SimulatedPressable accessibilityRole="button" onPress={() => logout()} style={styles.logoutButton}>
-                  <Text style={styles.logout}>Cerrar sesión</Text>
-                </SimulatedPressable>
+          <View style={styles.sidebar}>
+            <ScrollView
+              style={styles.sidebarScroll}
+              contentContainerStyle={[styles.sidebarContent, { paddingBottom: Math.max(insets.bottom, 24) }]}
+              keyboardShouldPersistTaps="handled"
+            >
+              <View style={styles.brandBlock}>
+                <ImageSlot imageKey="marca/logo.png" label="Logotipo" height={88} fit="contain" />
+                <Text style={styles.brandKicker}>Programa de vuelo</Text>
+                <Text style={styles.brand}>AeroSyllabus</Text>
               </View>
-            ) : null}
+              <View style={styles.nav}>
+                {NAV.map((item) => (
+                  <NavItem key={item.href} item={item} />
+                ))}
+              </View>
+              <ConnectivityBlock />
+              {user ? (
+                <View style={styles.userBlock}>
+                  <Text style={styles.userName}>{displayName(user.tratamiento, user.nombre)}</Text>
+                  <Text style={styles.userRole}>{user.rolLabel}</Text>
+                  <SimulatedPressable accessibilityRole="button" onPress={() => logout()} style={styles.logoutButton}>
+                    <Text style={styles.logout}>Cerrar sesión</Text>
+                  </SimulatedPressable>
+                </View>
+              ) : null}
+            </ScrollView>
           </View>
         ) : null}
         <View style={[styles.content, { paddingBottom: insets.bottom }]}>
@@ -132,7 +138,9 @@ function ConnectivityBlock({ compact = false }: { compact?: boolean }) {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.navy },
   body: { flex: 1, flexDirection: 'row', backgroundColor: colors.canvas },
-  sidebar: { width: 280, backgroundColor: colors.navy, padding: 20, gap: 18 },
+  sidebar: { width: 280, backgroundColor: colors.navy, minHeight: 0, overflow: 'hidden' },
+  sidebarScroll: { flex: 1 },
+  sidebarContent: { flexGrow: 1, padding: 20, gap: 18 },
   brandBlock: { gap: 4 },
   brandKicker: { color: colors.gold, fontSize: 12, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' },
   brand: { color: colors.white, fontSize: 26, fontWeight: '700' },

@@ -62,7 +62,7 @@ export default function RecursoScreen() {
 
 const styles = StyleSheet.create({
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  viewer: { flex: 1, gap: 8, minHeight: 480 },
+  viewer: { flex: 1, gap: 8, minHeight: 0 },
   file: { color: colors.muted, fontSize: 13 },
   note: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   placeholder: { gap: 12 },

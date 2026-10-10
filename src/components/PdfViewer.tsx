@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { createElement, useEffect, useState } from 'react';
+import { ActivityIndicator, Platform, StyleSheet, Text, View } from 'react-native';
 import { Asset } from 'expo-asset';
 import { Directory, File, Paths } from 'expo-file-system';
 import { WebView } from 'react-native-webview';
@@ -13,6 +13,66 @@ type Props = {
 };
 
 export function PdfViewer({ pdfModule, fileName }: Props) {
+  if (Platform.OS === 'web') {
+    return <WebPdfViewer pdfModule={pdfModule} fileName={fileName} />;
+  }
+  return <NativePdfViewer pdfModule={pdfModule} fileName={fileName} />;
+}
+
+function WebPdfViewer({ pdfModule, fileName }: Props) {
+  const [uri, setUri] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    setError(null);
+    setUri(null);
+    try {
+      const asset = Asset.fromModule(pdfModule);
+      if (!asset.uri) {
+        throw new Error('El archivo no está disponible dentro de la app.');
+      }
+      if (active) {
+        setUri(asset.uri);
+      }
+    } catch (caught) {
+      if (active) {
+        setError(caught instanceof Error ? caught.message : 'No se pudo abrir el PDF.');
+      }
+    }
+    return () => {
+      active = false;
+    };
+  }, [pdfModule]);
+
+  if (error) {
+    return <PdfMessage title="No se pudo mostrar el PDF" body={error} />;
+  }
+  if (!uri) {
+    return <PdfLoading />;
+  }
+  return (
+    <View style={styles.webFrame}>
+      {createElement('iframe', {
+        src: uri,
+        title: fileName,
+        style: {
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          border: 'none',
+          background: '#FFFFFF',
+        },
+      })}
+    </View>
+  );
+}
+
+function NativePdfViewer({ pdfModule, fileName }: Props) {
   const [uri, setUri] = useState<string | null>(null);
   const [readAccess, setReadAccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -58,21 +118,11 @@ export function PdfViewer({ pdfModule, fileName }: Props) {
   }, [fileName, pdfModule]);
 
   if (error) {
-    return (
-      <View style={styles.message}>
-        <Text style={styles.errorTitle}>No se pudo mostrar el PDF</Text>
-        <Text style={styles.errorBody}>{error}</Text>
-      </View>
-    );
+    return <PdfMessage title="No se pudo mostrar el PDF" body={error} />;
   }
 
   if (!uri || !readAccess) {
-    return (
-      <View style={styles.message}>
-        <ActivityIndicator color={colors.navy} />
-        <Text style={styles.loading}>Preparando el documento en el dispositivo…</Text>
-      </View>
-    );
+    return <PdfLoading />;
   }
 
   return (
@@ -151,8 +201,27 @@ function buildViewerHtml(base64: string): string {
 </html>`;
 }
 
+function PdfLoading() {
+  return (
+    <View style={styles.message}>
+      <ActivityIndicator color={colors.navy} />
+      <Text style={styles.loading}>Preparando el documento en el dispositivo…</Text>
+    </View>
+  );
+}
+
+function PdfMessage({ title, body }: { title: string; body: string }) {
+  return (
+    <View style={styles.message}>
+      <Text style={styles.errorTitle}>{title}</Text>
+      <Text style={styles.errorBody}>{body}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   web: { flex: 1, backgroundColor: colors.canvas, borderRadius: 16, overflow: 'hidden' },
+  webFrame: { flex: 1, minHeight: 0, position: 'relative', borderRadius: 16, overflow: 'hidden', backgroundColor: colors.white },
   message: {
     flex: 1,
     minHeight: 240,

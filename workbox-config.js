@@ -4,7 +4,7 @@ module.exports = {
   globIgnores: ['**/sw.js'],
   swDest: 'dist/sw.js',
   navigateFallback: 'index.html',
-  navigateFallbackDenylist: [/\/manifest\.json$/, /\/sw\.js$/, /\/robots\.txt$/],
+  navigateFallbackDenylist: [/\/manifest\.json$/, /\/sw\.js$/, /\/robots\.txt$/, /\.pdf$/],
   maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
   skipWaiting: true,
   clientsClaim: true,

@@ -1,12 +1,12 @@
 # AeroSyllabus
 
-Prototipo móvil del programa de adiestramiento de pilotos. Sirve para recorrer el flujo de tres meses —syllabus, biblioteca, evaluaciones y liberación— antes de conectar un servidor.
+Prototipo de web app PWA privada para el programa de adiestramiento de pilotos. Sirve para recorrer el flujo de tres meses —syllabus, biblioteca, evaluaciones y liberación— antes de conectar un servidor.
 
 ## Qué es
 
-AeroSyllabus es una app para capitanes, copilotos e instructores. Cada persona entra con su rol, ve la ruta que le corresponde y puede consultar los temarios del programa aunque no haya red.
+AeroSyllabus es una aplicación web privada para capitanes, copilotos e instructores. No se publica en App Store ni en Play Store: se abre con una dirección que se comparte solo con el grupo de adiestramiento y, si se quiere, se instala desde el navegador en la pantalla de inicio. Cada persona entra con su rol, ve la ruta que le corresponde y puede consultar los temarios del programa aunque no haya red.
 
-En este demo no hay backend. El acceso es simulado, los temarios viven dentro del proyecto y el avance se guarda en el propio iPad o teléfono. Cuando más adelante exista un servidor, esa misma información local es la que se enviaría al reconectar.
+En este demo no hay backend. El acceso es simulado, los temarios viajan dentro del sitio y el avance se guarda en el propio iPad, teléfono o computadora. Cuando más adelante exista un servidor, esa misma información local es la que se enviaría al reconectar.
 
 Los cinco PDF (AA 210, AA 260, AA 301, AA 302 y AA 310) son temarios de ejemplo para la biblioteca. No son manuales operativos de una aeronave.
 
@@ -22,18 +22,37 @@ Los cinco PDF (AA 210, AA 260, AA 301, AA 302 y AA 310) son temarios de ejemplo 
 
 ## Cómo abrirlo
 
-Hace falta Node.js 22 o superior. En esta máquina puedes usar `nvm use` dentro de la carpeta del proyecto.
+El demo publicado está en [https://zamuset.github.io/AeroSyllabus/](https://zamuset.github.io/AeroSyllabus/). Cualquiera con ese enlace puede abrirlo. En el iPad o el teléfono se instala desde el navegador, con Compartir y luego Agregar a pantalla de inicio.
+
+Para trabajar en local hace falta Node.js 22 o superior. En esta máquina puedes usar `nvm use` dentro de la carpeta del proyecto.
 
 ```bash
 cd /Users/samuelchavez/Projects/AeroSyllabus
 nvm use
 npm install
-npx expo start
+npm start
 ```
 
-Abre Expo Go en el iPad, iPhone o Android, escanea el código QR y entra con una cuenta de demostración. Esta forma de probar no pide certificados de Apple ni de Google.
+`npm start` abre el sitio en el navegador, en `http://localhost:8081`. Esa sesión de desarrollo no instala la PWA: el service worker se genera al construir.
 
-La interfaz está pensada primero para tablet y también se puede usar en teléfono. En el iPad conviene probar en horizontal y en vertical.
+Para probarla como app instalable, con caché y sin la barra del navegador:
+
+```bash
+npm run build:web
+npm run preview:pwa
+```
+
+El segundo comando sirve la carpeta `dist` en la raíz del equipo. El sitio público vive en `/AeroSyllabus`, así que la prueba fiel es la dirección de GitHub Pages.
+
+Para volver a publicar después de un cambio:
+
+```bash
+npm run deploy
+```
+
+Eso construye `dist` y lo sube a la rama `gh-pages`. GitHub Pages sirve esa rama. En iPhone o iPad: Compartir y luego Agregar a pantalla de inicio, dejando activa la opción de abrir como app web. No hace falta cuenta de Apple ni de Google.
+
+La interfaz está pensada primero para tablet y también se puede usar en teléfono o en una ventana ancha de escritorio. En el iPad conviene probar en horizontal y en vertical.
 
 ### Cuentas de demostración
 
@@ -76,7 +95,7 @@ Los videos en sí no se reproducen todavía. Esas tarjetas son el lugar donde de
 
 ## Cómo está armado
 
-Es una app Expo (React Native) con un solo código para Android e iOS. Se prueba con Expo Go. Las carpetas nativas `ios/` y `android/` no se editan a mano: Expo las genera el día que haya que firmar un instalable.
+Es una web app de una sola página, hecha con Expo para web. El navegador es el destino de esta rama. El manifiesto en `public/manifest.json` la declara instalable (`display: standalone`) y `public/robots.txt` pide a los buscadores que no la indexen. `npm run build:web` exporta el sitio a `dist` y Workbox escribe `dist/sw.js`, que guarda en caché las pantallas, las imágenes, los PDF y la base local para abrirlos sin red.
 
 ```text
 src/app/                Pantallas. Cada archivo es una ruta.
@@ -102,7 +121,7 @@ El temario no está en la base de datos. Vive en `src/data/catalog.ts`, porque e
 
 ### Datos en el dispositivo
 
-La base se llama `aerosyllabus.db` y la abre `expo-sqlite`. Permanece al cerrar la app.
+La base se llama `aerosyllabus.db` y la abre `expo-sqlite` dentro del navegador (SQLite compilado a WebAssembly, guardado en el almacenamiento del sitio). Al arrancar, la app pide al navegador que marque ese almacenamiento como persistente. Permanece al cerrar la pestaña o la app instalada, salvo que la persona borre los datos del sitio.
 
 - `meta`: quién inició sesión y si la simulación está en línea o sin conexión.
 - `session_progress`: pendiente, en progreso, completada o repaso asignado.
@@ -113,7 +132,7 @@ La base se llama `aerosyllabus.db` y la abre `expo-sqlite`. Permanece al cerrar 
 
 Si la simulación está en línea, el registro se guarda ya como sincronizado. Si está sin conexión, queda pendiente. Al volver a “en línea”, esos pendientes se marcan enviados. No hay red real ni servidor: el interruptor existe para enseñar el flujo que después hará la sincronización de verdad.
 
-Los PDF se leen del paquete de la app, así que también abren sin red. El visor usa PDF.js (licencia Apache 2.0, nota en `assets/vendor/PDFJS-LICENCIA.txt`).
+Los PDF se leen del propio sitio, así que también abren sin red una vez que el service worker los guardó. El visor usa PDF.js (licencia Apache 2.0, nota en `assets/vendor/PDFJS-LICENCIA.txt`).
 
 ### Roles
 
@@ -126,10 +145,10 @@ Una evaluación “dominada” completa la sesión de ese piloto. “A reforzar�
 ## Qué todavía no está
 
 - No hay API, usuarios reales ni recuperación de contraseña.
-- No se instala como app propia en el iPad. Eso, más adelante, sí pide firma: cuenta de Apple para iOS y un keystore para Android.
+- No está en las tiendas. Se instala desde el navegador, en una dirección privada.
 - El video no se reproduce. Los diagramas esperan las imágenes.
 - El calendario son semanas del programa (semana 1 a semana 12), no fechas de un simulador real.
 
 ## Ramas
 
-`main` es la línea principal. `feature/mvp-prototipo` es la primera funcionalidad: este demo. En este punto las dos contienen el mismo prototipo, para que el repositorio se pueda abrir y ejecutar desde cualquiera de ellas.
+`main` y `feature/mvp-prototipo` conservan el prototipo móvil con Expo Go. `feature/pwa-privada` es esta web app instalable.

@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { findUser, users } from '../data/catalog';
+import { preparePrivatePwa } from '../lib/pwa';
 import { Connectivity, NewEvaluation, ReadingStatus, ReleaseState, SessionStatus, User } from '../data/types';
 import { getDatabase, getMeta, setMeta } from '../db/database';
 import {
@@ -46,6 +47,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    preparePrivatePwa();
     let active = true;
     (async () => {
       try {

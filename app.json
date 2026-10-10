@@ -23,7 +23,16 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "lang": "es",
+      "name": "AeroSyllabus",
+      "themeColor": "#0B1C2C",
+      "backgroundColor": "#0B1C2C"
+    },
+    "experiments": {
+      "baseUrl": "/AeroSyllabus"
     },
     "plugins": [
       "expo-router",

@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { router, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SimulatedPressable } from './LoadGate';
 import { ImageSlot } from './ui';
 import { useApp } from '../state/AppContext';
 import { colors, tabletMinWidth } from '../theme/theme';
@@ -28,9 +29,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <StatusBar style="light" />
       <View style={styles.body}>
         {wide ? (
-          <View style={[styles.sidebar, { paddingBottom: insets.bottom }]}>
+          <View style={[styles.sidebar, { paddingBottom: Math.max(insets.bottom, 24) }]}>
             <View style={styles.brandBlock}>
-              <ImageSlot imageKey="marca/logo.png" label="Logotipo" aspectRatio={3.2} />
+              <ImageSlot imageKey="marca/logo.png" label="Logotipo" aspectRatio={16 / 9} fit="contain" />
               <Text style={styles.brandKicker}>Programa de vuelo</Text>
               <Text style={styles.brand}>AeroSyllabus</Text>
             </View>
@@ -44,9 +45,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <View style={styles.userBlock}>
                 <Text style={styles.userName}>{displayName(user.tratamiento, user.nombre)}</Text>
                 <Text style={styles.userRole}>{user.rolLabel}</Text>
-                <Pressable accessibilityRole="button" onPress={() => logout()}>
+                <SimulatedPressable accessibilityRole="button" onPress={() => logout()} style={styles.logoutButton}>
                   <Text style={styles.logout}>Cerrar sesión</Text>
-                </Pressable>
+                </SimulatedPressable>
               </View>
             ) : null}
           </View>
@@ -63,9 +64,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </Text>
                   ) : null}
                 </View>
-                <Pressable accessibilityRole="button" onPress={() => logout()}>
+                <SimulatedPressable accessibilityRole="button" onPress={() => logout()} style={styles.logoutButton}>
                   <Text style={styles.logout}>Salir</Text>
-                </Pressable>
+                </SimulatedPressable>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.phoneNav}>
                 {NAV.map((item) => (
@@ -92,13 +93,13 @@ function NavItem({
   const pathname = usePathname();
   const active = item.match === 'exact' ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
   return (
-    <Pressable
+    <SimulatedPressable
       accessibilityRole="button"
       onPress={() => router.push(item.href)}
       style={[styles.navItem, compact && styles.navItemCompact, active && styles.navItemActive]}
     >
       <Text style={[styles.navLabel, active && styles.navLabelActive]}>{item.label}</Text>
-    </Pressable>
+    </SimulatedPressable>
   );
 }
 
@@ -117,13 +118,13 @@ function ConnectivityBlock({ compact = false }: { compact?: boolean }) {
           : 'El progreso vive en este dispositivo'}
       </Text>
       {syncNote ? <Text style={styles.syncNote}>{syncNote}</Text> : null}
-      <Pressable
+      <SimulatedPressable
         accessibilityRole="button"
         onPress={() => setConnectivity(online ? 'offline' : 'online')}
         style={styles.syncButton}
       >
         <Text style={styles.syncButtonText}>{online ? 'Simular corte de red' : 'Simular reconexión'}</Text>
-      </Pressable>
+      </SimulatedPressable>
     </View>
   );
 }
@@ -148,10 +149,11 @@ const styles = StyleSheet.create({
   phoneBrand: { color: colors.white, fontSize: 18, fontWeight: '700' },
   phoneUser: { color: colors.mutedOnNavy, fontSize: 13, marginTop: 2 },
   phoneNav: { paddingVertical: 2 },
-  userBlock: { gap: 2, borderTopWidth: 1, borderTopColor: colors.navyRaised, paddingTop: 14 },
+  userBlock: { gap: 2, borderTopWidth: 1, borderTopColor: colors.navyRaised, paddingTop: 14, paddingBottom: 8 },
   userName: { color: colors.white, fontSize: 15, fontWeight: '700' },
   userRole: { color: colors.mutedOnNavy, fontSize: 13 },
-  logout: { color: colors.gold, fontSize: 14, fontWeight: '700', marginTop: 8 },
+  logoutButton: { alignSelf: 'flex-start', marginTop: 8, paddingVertical: 12, paddingRight: 16 },
+  logout: { color: colors.gold, fontSize: 14, fontWeight: '700' },
   sync: { gap: 6, marginTop: 'auto', backgroundColor: colors.navyRaised, borderRadius: 14, padding: 12 },
   syncCompact: { marginTop: 0 },
   syncRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },

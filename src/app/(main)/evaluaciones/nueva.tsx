@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
+import { SimulatedPressable } from '../../../components/LoadGate';
 import { Button, Screen, ScreenHeader } from '../../../components/ui';
 import { sessions, trainees } from '../../../data/catalog';
 import { evalResultLabel } from '../../../data/labels';
@@ -133,9 +134,9 @@ export default function NuevaEvaluacionScreen() {
 
 function Choice({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={[styles.choice, active && styles.choiceActive]}>
+    <SimulatedPressable accessibilityRole="button" onPress={onPress} style={[styles.choice, active && styles.choiceActive]}>
       <Text style={[styles.choiceText, active && styles.choiceTextActive]}>{label}</Text>
-    </Pressable>
+    </SimulatedPressable>
   );
 }
 

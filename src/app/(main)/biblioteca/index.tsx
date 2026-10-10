@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
 
+import { SimulatedPressable } from '../../../components/LoadGate';
 import { Card, ImageSlot, Pill, Screen, ScreenHeader } from '../../../components/ui';
 import { program, resources } from '../../../data/catalog';
 import { readingStatusLabel, resourceKindLabel } from '../../../data/labels';
@@ -38,14 +39,14 @@ export default function BibliotecaScreen() {
         {filters.map((item) => {
           const active = item.id === filter;
           return (
-            <Pressable
+            <SimulatedPressable
               key={item.id}
               accessibilityRole="button"
               onPress={() => setFilter(item.id)}
               style={[styles.filter, active && styles.filterActive]}
             >
               <Text style={[styles.filterText, active && styles.filterTextActive]}>{item.label}</Text>
-            </Pressable>
+            </SimulatedPressable>
           );
         })}
       </View>
@@ -53,7 +54,7 @@ export default function BibliotecaScreen() {
         {visible.map((resource) => {
           const reading = snapshot.readingProgress.find((row) => row.userId === user.id && row.resourceId === resource.id);
           return (
-            <Pressable
+            <SimulatedPressable
               key={resource.id}
               accessibilityRole="button"
               onPress={() => router.push(`/biblioteca/${resource.id}`)}
@@ -66,7 +67,7 @@ export default function BibliotecaScreen() {
                 <Text style={styles.body}>{resource.descripcion}</Text>
                 <Pill label={readingStatusLabel[reading?.status ?? 'no_leido']} tone={reading?.status === 'leido' ? 'ok' : 'neutral'} />
               </Card>
-            </Pressable>
+            </SimulatedPressable>
           );
         })}
       </View>

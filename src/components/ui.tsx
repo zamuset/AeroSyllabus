@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { router } from 'expo-router';
+
+import { SimulatedPressable } from './LoadGate';
 
 import { imageSources } from '../data/images';
 import { ImageKey } from '../data/types';
@@ -42,7 +44,7 @@ export function ScreenHeader({
   return (
     <View style={styles.header}>
       {back ? (
-        <Pressable
+        <SimulatedPressable
           accessibilityRole="button"
           onPress={() => {
             if (router.canGoBack()) {
@@ -54,7 +56,7 @@ export function ScreenHeader({
           style={styles.back}
         >
           <Text style={styles.backText}>Volver</Text>
-        </Pressable>
+        </SimulatedPressable>
       ) : null}
       {kicker ? <Text style={styles.kicker}>{kicker}</Text> : null}
       <Text style={styles.title}>{title}</Text>
@@ -87,14 +89,14 @@ export function Button({
   disabled?: boolean;
 }) {
   return (
-    <Pressable
+    <SimulatedPressable
       accessibilityRole="button"
       disabled={disabled}
       onPress={onPress}
       style={[styles.button, buttonVariants[variant], disabled && styles.buttonDisabled]}
     >
       <Text style={[styles.buttonText, variant !== 'primary' && styles.buttonTextDark]}>{label}</Text>
-    </Pressable>
+    </SimulatedPressable>
   );
 }
 
@@ -111,14 +113,16 @@ export function ImageSlot({
   imageKey,
   label,
   aspectRatio = 16 / 9,
+  fit = 'cover',
 }: {
   imageKey: ImageKey;
   label: string;
   aspectRatio?: number;
+  fit?: 'cover' | 'contain';
 }) {
   const source = imageSources[imageKey];
   if (source) {
-    return <Image source={source} style={[styles.image, { aspectRatio }]} resizeMode="cover" />;
+    return <Image source={source} style={[styles.image, { aspectRatio }]} resizeMode={fit} />;
   }
   return (
     <View style={[styles.slot, { aspectRatio }]}>

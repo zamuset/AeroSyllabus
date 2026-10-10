@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { Redirect, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SimulatedPressable } from '../components/LoadGate';
 import { ImageSlot, Screen } from '../components/ui';
 import { program, users } from '../data/catalog';
 import { useApp } from '../state/AppContext';
@@ -41,13 +42,13 @@ export default function LoginScreen() {
       <StatusBar style="dark" />
       <View style={[styles.split, wide && styles.splitWide]}>
         <View style={[styles.hero, wide && styles.heroWide]}>
-          <ImageSlot imageKey="marca/logo.png" label="Logotipo" aspectRatio={4} />
+          <ImageSlot imageKey="marca/logo.png" label="Logotipo" aspectRatio={16 / 9} fit="contain" />
           <Text style={styles.kicker}>Área de adiestramiento</Text>
           <Text style={styles.brand}>AeroSyllabus</Text>
           <Text style={styles.lead}>
             {program.nombre}. {program.duracion}. Consulta el syllabus, los temarios y el avance de cada piloto.
           </Text>
-          <ImageSlot imageKey="login/cabina.jpg" label="Fotografía de cabina o simulador" aspectRatio={wide ? 16 / 10 : 16 / 7} />
+          <ImageSlot imageKey="login/cabina.jpg" label="Fotografía de cabina o simulador" aspectRatio={16 / 9} fit="contain" />
           <Text style={styles.note}>{program.nota}</Text>
         </View>
         <Screen>
@@ -75,18 +76,18 @@ export default function LoginScreen() {
             style={styles.input}
           />
           {message ? <Text style={styles.error}>{message}</Text> : null}
-          <Pressable
+          <SimulatedPressable
             accessibilityRole="button"
             disabled={busy}
             onPress={() => signIn(email, password)}
             style={[styles.primary, busy && styles.disabled]}
           >
             <Text style={styles.primaryText}>{busy ? 'Entrando…' : 'Entrar'}</Text>
-          </Pressable>
+          </SimulatedPressable>
           <Text style={styles.demoTitle}>Cuentas de demostración</Text>
           <View style={styles.demoList}>
             {users.map((account) => (
-              <Pressable
+              <SimulatedPressable
                 key={account.id}
                 accessibilityRole="button"
                 disabled={busy}
@@ -97,10 +98,9 @@ export default function LoginScreen() {
                 <Text style={styles.demoMeta}>
                   {account.rolLabel} · {account.email}
                 </Text>
-              </Pressable>
+              </SimulatedPressable>
             ))}
           </View>
-          <Text style={styles.passwordHint}>Contraseña de las tres cuentas: demo123</Text>
         </Screen>
       </View>
     </View>
@@ -139,5 +139,4 @@ const styles = StyleSheet.create({
   demo: { borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, borderRadius: 12, padding: 12, gap: 2 },
   demoName: { color: colors.ink, fontWeight: '700', fontSize: 15 },
   demoMeta: { color: colors.muted, fontSize: 13 },
-  passwordHint: { color: colors.muted, fontSize: 13 },
 });

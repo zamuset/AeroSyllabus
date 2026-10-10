@@ -49,13 +49,12 @@ Para ver la cola de sincronización: entra, pulsa “Simular corte de red”, ma
 
 ## Dónde agregar imágenes
 
-Las fotos todavía no están en el proyecto. Cada hueco muestra la ruta del archivo que espera. Cuando tengas la imagen:
+El demo ya trae ilustraciones de ejemplo en cada hueco. Para sustituir una:
 
-1. Cópiala a la ruta de la tabla, con ese nombre exacto.
-2. Abre `src/data/images.ts`.
-3. Quita el comentario de la línea `require(...)` de esa misma ruta.
+1. Reemplaza el archivo de la tabla, con ese mismo nombre.
+2. Deja activo el `require(...)` de esa ruta en `src/data/images.ts`.
 
-Hasta que el `require` esté activo, la app sigue mostrando el recuadro de “Imagen pendiente”. Metro no incluye un archivo que no esté referenciado así.
+Metro solo incluye una imagen si ese `require` existe y la ruta es literal. Si quitas el `require`, el recuadro vuelve a decir “Imagen pendiente”.
 
 | Archivo | Dónde se ve |
 | --- | --- |

@@ -139,17 +139,22 @@ export function ImageSlot({
   imageKey,
   label,
   aspectRatio = 16 / 9,
+  fit = 'cover',
+  height,
 }: {
   imageKey: ImageKey;
   label: string;
   aspectRatio?: number;
+  fit?: 'cover' | 'contain';
+  height?: number;
 }) {
+  const frame = height ? { height, width: '100%' as const } : { aspectRatio };
   const source = imageSources[imageKey];
   if (source) {
-    return <Image source={source} style={[styles.image, { aspectRatio }]} resizeMode="cover" />;
+    return <Image source={source} style={[styles.image, frame]} resizeMode={fit} />;
   }
   return (
-    <View style={[styles.slot, { aspectRatio }]}>
+    <View style={[styles.slot, frame]}>
       <Text style={styles.slotKicker}>Imagen pendiente</Text>
       <Text style={styles.slotLabel}>{label}</Text>
       <Text style={styles.slotPath}>assets/images/{imageKey}</Text>

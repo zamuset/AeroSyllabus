@@ -30,27 +30,33 @@ export function AppShell({ children }: { children: ReactNode }) {
       <StatusBar style="light" />
       <View style={styles.body}>
         {wide ? (
-          <View style={[styles.sidebar, { paddingBottom: insets.bottom }]}>
-            <View style={styles.brandBlock}>
-              <ImageSlot imageKey="marca/logo.png" label="Logotipo" aspectRatio={3.2} />
-              <Text style={styles.brandKicker}>Programa de vuelo</Text>
-              <Text style={styles.brand}>AeroSyllabus</Text>
-            </View>
-            <View style={styles.nav}>
-              {NAV.map((item) => (
-                <NavItem key={item.href} item={item} />
-              ))}
-            </View>
-            <ConnectivityBlock />
-            {user ? (
-              <View style={styles.userBlock}>
-                <Text style={styles.userName}>{displayName(user.tratamiento, user.nombre)}</Text>
-                <Text style={styles.userRole}>{user.rolLabel}</Text>
-                <SoftPressable accessibilityRole="button" onPress={() => logout()}>
-                  <Text style={styles.logout}>Cerrar sesión</Text>
-                </SoftPressable>
+          <View style={styles.sidebar}>
+            <ScrollView
+              style={styles.sidebarScroll}
+              contentContainerStyle={[styles.sidebarContent, { paddingBottom: Math.max(insets.bottom, 24) }]}
+              keyboardShouldPersistTaps="handled"
+            >
+              <View style={styles.brandBlock}>
+                <ImageSlot imageKey="marca/logo.png" label="Logotipo" height={88} fit="contain" />
+                <Text style={styles.brandKicker}>Programa de vuelo</Text>
+                <Text style={styles.brand}>AeroSyllabus</Text>
               </View>
-            ) : null}
+              <View style={styles.nav}>
+                {NAV.map((item) => (
+                  <NavItem key={item.href} item={item} />
+                ))}
+              </View>
+              <ConnectivityBlock />
+              {user ? (
+                <View style={styles.userBlock}>
+                  <Text style={styles.userName}>{displayName(user.tratamiento, user.nombre)}</Text>
+                  <Text style={styles.userRole}>{user.rolLabel}</Text>
+                  <SoftPressable accessibilityRole="button" onPress={() => logout()} style={styles.logoutButton}>
+                    <Text style={styles.logout}>Cerrar sesión</Text>
+                  </SoftPressable>
+                </View>
+              ) : null}
+            </ScrollView>
           </View>
         ) : null}
         <View style={[styles.content, { paddingBottom: insets.bottom }]}>
@@ -65,7 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </Text>
                   ) : null}
                 </View>
-                <SoftPressable accessibilityRole="button" onPress={() => logout()}>
+                <SoftPressable accessibilityRole="button" onPress={() => logout()} style={styles.logoutButton}>
                   <Text style={styles.logout}>Salir</Text>
                 </SoftPressable>
               </View>
@@ -135,7 +141,9 @@ function ConnectivityBlock({ compact = false }: { compact?: boolean }) {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.navy },
   body: { flex: 1, flexDirection: 'row', backgroundColor: colors.canvas },
-  sidebar: { width: 280, backgroundColor: colors.navy, padding: 20, gap: 18 },
+  sidebar: { width: 280, backgroundColor: colors.navy, minHeight: 0, overflow: 'hidden' },
+  sidebarScroll: { flex: 1 },
+  sidebarContent: { flexGrow: 1, padding: 20, gap: 18 },
   brandBlock: { gap: 4 },
   brandKicker: { color: colors.gold, fontSize: 12, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' },
   brand: { color: colors.white, fontSize: 26, fontWeight: '700' },
@@ -152,10 +160,11 @@ const styles = StyleSheet.create({
   phoneBrand: { color: colors.white, fontSize: 18, fontWeight: '700' },
   phoneUser: { color: colors.mutedOnNavy, fontSize: 13, marginTop: 2 },
   phoneNav: { paddingVertical: 2 },
-  userBlock: { gap: 2, borderTopWidth: 1, borderTopColor: colors.navyRaised, paddingTop: 14 },
+  userBlock: { gap: 2, borderTopWidth: 1, borderTopColor: colors.navyRaised, paddingTop: 14, paddingBottom: 8 },
   userName: { color: colors.white, fontSize: 15, fontWeight: '700' },
   userRole: { color: colors.mutedOnNavy, fontSize: 13 },
-  logout: { color: colors.gold, fontSize: 14, fontWeight: '700', marginTop: 8 },
+  logoutButton: { alignSelf: 'flex-start', marginTop: 8, paddingVertical: 12, paddingRight: 16 },
+  logout: { color: colors.gold, fontSize: 14, fontWeight: '700' },
   sync: { gap: 6, marginTop: 'auto', backgroundColor: colors.navyRaised, borderRadius: 14, padding: 12 },
   syncCompact: { marginTop: 0 },
   syncRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },

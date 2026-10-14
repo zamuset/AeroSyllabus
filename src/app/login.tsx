@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { Redirect, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SoftEnter, SoftPressable } from '../components/motion';
-import { ImageSlot, Screen } from '../components/ui';
+import { ImageSlot } from '../components/ui';
 import { program, users } from '../data/catalog';
 import { useApp } from '../state/AppContext';
 import { colors, tabletMinWidth } from '../theme/theme';
@@ -37,74 +37,85 @@ export default function LoginScreen() {
     router.replace('/inicio');
   }
 
-  return (
-    <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-      <StatusBar style="dark" />
-      <SoftEnter>
-      <View style={[styles.split, wide && styles.splitWide]}>
-        <View style={[styles.hero, wide && styles.heroWide]}>
-          <ImageSlot imageKey="marca/logo.png" label="Logotipo" aspectRatio={4} />
-          <Text style={styles.kicker}>Área de adiestramiento</Text>
-          <Text style={styles.brand}>AeroSyllabus</Text>
-          <Text style={styles.lead}>
-            {program.nombre}. {program.duracion}. Consulta el syllabus, los temarios y el avance de cada piloto.
-          </Text>
-          <ImageSlot imageKey="login/cabina.jpg" label="Fotografía de cabina o simulador" aspectRatio={wide ? 16 / 10 : 16 / 7} />
-          <Text style={styles.note}>{program.nota}</Text>
-        </View>
-        <Screen>
-          <Text style={styles.formTitle}>Entrar al programa</Text>
-          <Text style={styles.formLead}>Este acceso es simulado. No hay servidor: la sesión queda en el dispositivo.</Text>
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Text style={styles.label}>Correo</Text>
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            placeholder="capitan@aerosyllabus.dev"
-            placeholderTextColor={colors.muted}
-            style={styles.input}
-          />
-          <Text style={styles.label}>Contraseña</Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholder="demo123"
-            placeholderTextColor={colors.muted}
-            style={styles.input}
-          />
-          {message ? <Text style={styles.error}>{message}</Text> : null}
+  const hero = (
+    <View style={[styles.hero, wide && styles.heroWide]}>
+      <ImageSlot imageKey="marca/logo.png" label="Logotipo" height={wide ? 140 : 168} fit="contain" />
+      <Text style={styles.kicker}>Área de adiestramiento</Text>
+      <Text style={styles.brand}>AeroSyllabus</Text>
+      <Text style={styles.lead}>
+        {program.nombre}. {program.duracion}. Consulta el syllabus, los temarios y el avance de cada piloto.
+      </Text>
+      <Text style={styles.note}>{program.nota}</Text>
+    </View>
+  );
+
+  const form = (
+    <View style={[styles.form, wide && styles.formWide]}>
+      <Text style={styles.formTitle}>Entrar al programa</Text>
+      <Text style={styles.formLead}>Este acceso es simulado. No hay servidor: la sesión queda en el dispositivo.</Text>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      <Text style={styles.label}>Correo</Text>
+      <TextInput
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        autoCorrect={false}
+        keyboardType="email-address"
+        placeholder="capitan@aerosyllabus.dev"
+        placeholderTextColor={colors.muted}
+        style={styles.input}
+      />
+      <Text style={styles.label}>Contraseña</Text>
+      <TextInput
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        placeholder="demo123"
+        placeholderTextColor={colors.muted}
+        style={styles.input}
+      />
+      {message ? <Text style={styles.error}>{message}</Text> : null}
+      <SoftPressable
+        accessibilityRole="button"
+        disabled={busy}
+        onPress={() => signIn(email, password)}
+        style={[styles.primary, busy && styles.disabled]}
+      >
+        <Text style={styles.primaryText}>{busy ? 'Entrando…' : 'Entrar'}</Text>
+      </SoftPressable>
+      <Text style={styles.demoTitle}>Cuentas de demostración</Text>
+      <View style={styles.demoList}>
+        {users.map((account) => (
           <SoftPressable
+            key={account.id}
             accessibilityRole="button"
             disabled={busy}
-            onPress={() => signIn(email, password)}
-            style={[styles.primary, busy && styles.disabled]}
+            onPress={() => signIn(account.email, account.password)}
+            style={styles.demo}
           >
-            <Text style={styles.primaryText}>{busy ? 'Entrando…' : 'Entrar'}</Text>
+            <Text style={styles.demoName}>{displayName(account.tratamiento, account.nombre)}</Text>
+            <Text style={styles.demoMeta}>
+              {account.rolLabel} · {account.email}
+            </Text>
           </SoftPressable>
-          <Text style={styles.demoTitle}>Cuentas de demostración</Text>
-          <View style={styles.demoList}>
-            {users.map((account) => (
-              <SoftPressable
-                key={account.id}
-                accessibilityRole="button"
-                disabled={busy}
-                onPress={() => signIn(account.email, account.password)}
-                style={styles.demo}
-              >
-                <Text style={styles.demoName}>{displayName(account.tratamiento, account.nombre)}</Text>
-                <Text style={styles.demoMeta}>
-                  {account.rolLabel} · {account.email}
-                </Text>
-              </SoftPressable>
-            ))}
-          </View>
-          <Text style={styles.passwordHint}>Contraseña de las tres cuentas: demo123</Text>
-        </Screen>
+        ))}
       </View>
+      <Text style={styles.passwordHint}>Contraseña de las tres cuentas: demo123</Text>
+    </View>
+  );
+
+  return (
+    <View style={[styles.root, { paddingTop: insets.top }]}>
+      <StatusBar style="dark" />
+      <SoftEnter>
+        <ScrollView
+          style={styles.fill}
+          contentContainerStyle={[styles.split, wide && styles.splitWide, { paddingBottom: Math.max(insets.bottom, 24) }]}
+          keyboardShouldPersistTaps="handled"
+        >
+          {hero}
+          {form}
+        </ScrollView>
       </SoftEnter>
     </View>
   );
@@ -112,10 +123,13 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.canvas },
-  split: { flex: 1 },
-  splitWide: { flexDirection: 'row' },
+  fill: { flex: 1 },
+  split: { flexGrow: 1 },
+  splitWide: { flexDirection: 'row', alignItems: 'stretch' },
   hero: { backgroundColor: colors.navy, padding: 24, gap: 14 },
-  heroWide: { width: '42%', justifyContent: 'center' },
+  heroWide: { width: '42%' },
+  form: { padding: 24, gap: 16, flexGrow: 1 },
+  formWide: { width: '58%' },
   kicker: { color: colors.gold, fontSize: 13, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' },
   brand: { color: colors.white, fontSize: 36, fontWeight: '700' },
   lead: { color: colors.mutedOnNavy, fontSize: 16, lineHeight: 22 },

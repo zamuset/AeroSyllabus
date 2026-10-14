@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useCallback, useContext, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, PressableProps, StyleSheet, Text, View } from 'react-native';
 
+import { FadePresence } from './motion';
 import { colors } from '../theme/theme';
 
 type LoadContextValue = {
@@ -32,23 +33,22 @@ export function LoadProvider({ children }: { children: ReactNode }) {
     <LoadContext.Provider value={{ run }}>
       <View style={styles.host}>
         {children}
-        {visible ? (
-          <View style={styles.overlay}>
-            <ActivityIndicator color={colors.white} size="large" />
-            <Text style={styles.caption}>Cargando</Text>
-          </View>
-        ) : null}
+        <FadePresence visible={visible} style={styles.overlay}>
+          <ActivityIndicator color={colors.white} size="large" />
+          <Text style={styles.caption}>Cargando</Text>
+        </FadePresence>
       </View>
     </LoadContext.Provider>
   );
 }
 
-export function SimulatedPressable({ onPress, disabled, ...rest }: PressableProps) {
+export function SimulatedPressable({ onPress, disabled, style, ...rest }: PressableProps) {
   const load = useContext(LoadContext);
   return (
     <Pressable
       {...rest}
       disabled={disabled}
+      style={(state) => [typeof style === 'function' ? style(state) : style, state.pressed && !disabled ? styles.pressed : null]}
       onPress={(event) => {
         const action = () => {
           onPress?.(event);
@@ -78,4 +78,5 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   caption: { color: colors.white, fontSize: 16, fontWeight: '700' },
+  pressed: { opacity: 0.72 },
 });

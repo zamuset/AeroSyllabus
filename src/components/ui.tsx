@@ -1,8 +1,9 @@
-import { ReactNode } from 'react';
-import { Image, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { ReactNode, useEffect, useRef } from 'react';
+import { Animated, Easing, Image, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { router } from 'expo-router';
 
 import { SimulatedPressable } from './LoadGate';
+import { useReducedMotion } from './motion';
 
 import { imageSources } from '../data/images';
 import { ImageKey } from '../data/types';
@@ -101,10 +102,36 @@ export function Button({
 }
 
 export function ProgressBar({ value }: { value: number }) {
-  const width = `${Math.round(Math.max(0, Math.min(1, value)) * 100)}%` as `${number}%`;
+  const reduced = useReducedMotion();
+  const width = useRef(new Animated.Value(0)).current;
+  const next = Math.max(0, Math.min(1, value));
+
+  useEffect(() => {
+    if (reduced) {
+      width.setValue(next);
+      return;
+    }
+    Animated.timing(width, {
+      toValue: next,
+      duration: 280,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [next, reduced, width]);
+
   return (
     <View style={styles.track}>
-      <View style={[styles.fillBar, { width }]} />
+      <Animated.View
+        style={[
+          styles.fillBar,
+          {
+            width: width.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['0%', '100%'],
+            }),
+          },
+        ]}
+      />
     </View>
   );
 }

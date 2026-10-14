@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SimulatedPressable } from './LoadGate';
+import { SoftEnter } from './motion';
 import { ImageSlot } from './ui';
 import { useApp } from '../state/AppContext';
 import { colors, tabletMinWidth } from '../theme/theme';
@@ -19,6 +20,7 @@ const NAV = [
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const { width } = useWindowDimensions();
   const wide = width >= tabletMinWidth;
   const insets = useSafeAreaInsets();
@@ -82,7 +84,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <ConnectivityBlock compact />
             </View>
           )}
-          <View style={styles.slot}>{children}</View>
+          <SoftEnter key={pathname} style={styles.slot}>
+            {children}
+          </SoftEnter>
         </View>
       </View>
     </View>

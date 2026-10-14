@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SimulatedPressable } from '../components/LoadGate';
+import { SoftEnter } from '../components/motion';
 import { ImageSlot } from '../components/ui';
 import { program, users } from '../data/catalog';
 import { useApp } from '../state/AppContext';
@@ -106,14 +107,16 @@ export default function LoginScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <StatusBar style="dark" />
-      <ScrollView
-        style={styles.fill}
-        contentContainerStyle={[styles.split, wide && styles.splitWide, { paddingBottom: Math.max(insets.bottom, 24) }]}
-        keyboardShouldPersistTaps="handled"
-      >
-        {hero}
-        {form}
-      </ScrollView>
+      <SoftEnter>
+        <ScrollView
+          style={styles.fill}
+          contentContainerStyle={[styles.split, wide && styles.splitWide, { paddingBottom: Math.max(insets.bottom, 24) }]}
+          keyboardShouldPersistTaps="handled"
+        >
+          {hero}
+          {form}
+        </ScrollView>
+      </SoftEnter>
     </View>
   );
 }

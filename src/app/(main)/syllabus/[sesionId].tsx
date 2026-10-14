@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
+import { SoftPressable } from '../../../components/motion';
 import { Button, Card, Pill, Screen, ScreenHeader } from '../../../components/ui';
 import { findResource, findSession, findStage, trainees } from '../../../data/catalog';
 import {
@@ -99,12 +100,12 @@ export default function SesionScreen() {
         <Card>
           <Text style={styles.section}>Material de la sesión</Text>
           {linked.map((resource) => (
-            <Pressable key={resource.id} accessibilityRole="button" onPress={() => router.push(`/biblioteca/${resource.id}`)}>
+            <SoftPressable key={resource.id} accessibilityRole="button" onPress={() => router.push(`/biblioteca/${resource.id}`)}>
               <Text style={styles.link}>
                 {resource.codigo ? `${resource.codigo} · ` : ''}
                 {resource.titulo}
               </Text>
-            </Pressable>
+            </SoftPressable>
           ))}
         </Card>
       ) : null}

@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 
+import { SoftPressable } from '../../../components/motion';
 import { Card, ImageSlot, Pill, Screen, ScreenHeader } from '../../../components/ui';
 import { program, stages } from '../../../data/catalog';
 import { audienceLabel, sessionStatusLabel, sessionTypeLabel, toneForSession } from '../../../data/labels';
@@ -41,7 +42,7 @@ export default function SyllabusScreen() {
                 const ownerId = user.rol === 'instructor' ? undefined : user.id;
                 const status = ownerId ? statusOf(snapshot.sessionProgress, ownerId, session.id) : undefined;
                 return (
-                  <Pressable
+                  <SoftPressable
                     key={session.id}
                     accessibilityRole="button"
                     onPress={() => router.push(`/syllabus/${session.id}`)}
@@ -56,7 +57,7 @@ export default function SyllabusScreen() {
                     </View>
                     <Text style={styles.sessionTitle}>{session.titulo}</Text>
                     <Text style={styles.audience}>{audienceLabel[session.audiencia]}</Text>
-                  </Pressable>
+                  </SoftPressable>
                 );
               })}
             </View>

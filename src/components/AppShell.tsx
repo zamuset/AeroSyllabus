@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { router, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SoftEnter, SoftPressable } from './motion';
 import { ImageSlot } from './ui';
 import { useApp } from '../state/AppContext';
 import { colors, tabletMinWidth } from '../theme/theme';
@@ -18,6 +19,7 @@ const NAV = [
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const { width } = useWindowDimensions();
   const wide = width >= tabletMinWidth;
   const insets = useSafeAreaInsets();
@@ -44,9 +46,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <View style={styles.userBlock}>
                 <Text style={styles.userName}>{displayName(user.tratamiento, user.nombre)}</Text>
                 <Text style={styles.userRole}>{user.rolLabel}</Text>
-                <Pressable accessibilityRole="button" onPress={() => logout()}>
+                <SoftPressable accessibilityRole="button" onPress={() => logout()}>
                   <Text style={styles.logout}>Cerrar sesión</Text>
-                </Pressable>
+                </SoftPressable>
               </View>
             ) : null}
           </View>
@@ -63,9 +65,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </Text>
                   ) : null}
                 </View>
-                <Pressable accessibilityRole="button" onPress={() => logout()}>
+                <SoftPressable accessibilityRole="button" onPress={() => logout()}>
                   <Text style={styles.logout}>Salir</Text>
-                </Pressable>
+                </SoftPressable>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.phoneNav}>
                 {NAV.map((item) => (
@@ -75,7 +77,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <ConnectivityBlock compact />
             </View>
           )}
-          <View style={styles.slot}>{children}</View>
+          <SoftEnter key={pathname} style={styles.slot}>
+            {children}
+          </SoftEnter>
         </View>
       </View>
     </View>
@@ -92,13 +96,13 @@ function NavItem({
   const pathname = usePathname();
   const active = item.match === 'exact' ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
   return (
-    <Pressable
+    <SoftPressable
       accessibilityRole="button"
       onPress={() => router.push(item.href)}
       style={[styles.navItem, compact && styles.navItemCompact, active && styles.navItemActive]}
     >
       <Text style={[styles.navLabel, active && styles.navLabelActive]}>{item.label}</Text>
-    </Pressable>
+    </SoftPressable>
   );
 }
 
@@ -117,13 +121,13 @@ function ConnectivityBlock({ compact = false }: { compact?: boolean }) {
           : 'El progreso vive en este dispositivo'}
       </Text>
       {syncNote ? <Text style={styles.syncNote}>{syncNote}</Text> : null}
-      <Pressable
+      <SoftPressable
         accessibilityRole="button"
         onPress={() => setConnectivity(online ? 'offline' : 'online')}
         style={styles.syncButton}
       >
         <Text style={styles.syncButtonText}>{online ? 'Simular corte de red' : 'Simular reconexión'}</Text>
-      </Pressable>
+      </SoftPressable>
     </View>
   );
 }

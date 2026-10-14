@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { Redirect, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SoftEnter, SoftPressable } from '../components/motion';
 import { ImageSlot, Screen } from '../components/ui';
 import { program, users } from '../data/catalog';
 import { useApp } from '../state/AppContext';
@@ -39,6 +40,7 @@ export default function LoginScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <StatusBar style="dark" />
+      <SoftEnter>
       <View style={[styles.split, wide && styles.splitWide]}>
         <View style={[styles.hero, wide && styles.heroWide]}>
           <ImageSlot imageKey="marca/logo.png" label="Logotipo" aspectRatio={4} />
@@ -75,18 +77,18 @@ export default function LoginScreen() {
             style={styles.input}
           />
           {message ? <Text style={styles.error}>{message}</Text> : null}
-          <Pressable
+          <SoftPressable
             accessibilityRole="button"
             disabled={busy}
             onPress={() => signIn(email, password)}
             style={[styles.primary, busy && styles.disabled]}
           >
             <Text style={styles.primaryText}>{busy ? 'Entrando…' : 'Entrar'}</Text>
-          </Pressable>
+          </SoftPressable>
           <Text style={styles.demoTitle}>Cuentas de demostración</Text>
           <View style={styles.demoList}>
             {users.map((account) => (
-              <Pressable
+              <SoftPressable
                 key={account.id}
                 accessibilityRole="button"
                 disabled={busy}
@@ -97,12 +99,13 @@ export default function LoginScreen() {
                 <Text style={styles.demoMeta}>
                   {account.rolLabel} · {account.email}
                 </Text>
-              </Pressable>
+              </SoftPressable>
             ))}
           </View>
           <Text style={styles.passwordHint}>Contraseña de las tres cuentas: demo123</Text>
         </Screen>
       </View>
+      </SoftEnter>
     </View>
   );
 }

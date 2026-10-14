@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 
+import { SoftPressable } from '../../components/motion';
 import { Card, Pill, ProgressBar, Screen, ScreenHeader } from '../../components/ui';
 import { findStage, program, trainees } from '../../data/catalog';
 import { releaseLabel, sessionStatusLabel, toneForRelease, toneForSession } from '../../data/labels';
@@ -38,12 +39,12 @@ export default function InicioScreen() {
                 </Text>
                 <ProgressBar value={counts.total === 0 ? 0 : counts.done / counts.total} />
                 <Text style={styles.meta}>Siguiente: {upcoming ? upcoming.titulo : 'Ruta completa'}</Text>
-                <Pressable
+                <SoftPressable
                   accessibilityRole="button"
                   onPress={() => router.push({ pathname: '/evaluaciones/nueva', params: { traineeId: trainee.id } })}
                 >
                   <Text style={styles.link}>Registrar evaluación</Text>
-                </Pressable>
+                </SoftPressable>
               </Card>
             );
           })}
@@ -85,9 +86,9 @@ export default function InicioScreen() {
               tone={toneForSession(statusOf(snapshot.sessionProgress, user.id, upcoming.id))}
             />
           </View>
-          <Pressable accessibilityRole="button" onPress={() => router.push(`/syllabus/${upcoming.id}`)}>
+          <SoftPressable accessibilityRole="button" onPress={() => router.push(`/syllabus/${upcoming.id}`)}>
             <Text style={styles.link}>Abrir sesión</Text>
-          </Pressable>
+          </SoftPressable>
         </Card>
       ) : (
         <Card>
@@ -100,7 +101,7 @@ export default function InicioScreen() {
         const status = statusOf(snapshot.sessionProgress, user.id, session.id);
         const sessionStage = findStage(session.stageId);
         return (
-          <Pressable key={session.id} accessibilityRole="button" onPress={() => router.push(`/syllabus/${session.id}`)}>
+          <SoftPressable key={session.id} accessibilityRole="button" onPress={() => router.push(`/syllabus/${session.id}`)}>
             <Card>
               <View style={styles.row}>
                 <Text style={styles.meta}>{sessionStage?.mes} · Semana {session.semana}</Text>
@@ -108,7 +109,7 @@ export default function InicioScreen() {
               </View>
               <Text style={styles.cardTitle}>{session.titulo}</Text>
             </Card>
-          </Pressable>
+          </SoftPressable>
         );
       })}
     </Screen>

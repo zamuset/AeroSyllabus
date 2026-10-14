@@ -1,20 +1,84 @@
+import { Platform } from 'react-native';
 import * as SQLite from 'expo-sqlite';
+
+const RELOAD_KEY = 'aerosyllabus-sqlite-reload';
 
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
 export function getDatabase(): Promise<SQLite.SQLiteDatabase> {
   if (!databasePromise) {
-    databasePromise = SQLite.openDatabaseAsync('aerosyllabus.db')
-      .then(async (db) => {
-        await migrate(db);
-        return db;
-      })
-      .catch((error) => {
-        databasePromise = null;
-        throw error;
-      });
+    databasePromise = openDatabase().catch((error) => {
+      databasePromise = null;
+      throw error;
+    });
   }
   return databasePromise;
+}
+
+async function openDatabase(): Promise<SQLite.SQLiteDatabase> {
+  try {
+    const db = await SQLite.openDatabaseAsync('aerosyllabus.db');
+    await migrate(db);
+    rememberSuccessfulOpen();
+    releaseDatabaseOnPageHide(db);
+    return db;
+  } catch (error) {
+    if (Platform.OS === 'web' && isBusyDatabaseError(error) && markReloadAttempt()) {
+      window.location.reload();
+      return new Promise(() => undefined);
+    }
+    if (isBusyDatabaseError(error)) {
+      throw new Error(
+        'La base local ya está abierta en otra ventana. Ciérrala y vuelve a cargar esta página.',
+      );
+    }
+    throw error;
+  }
+}
+
+function isBusyDatabaseError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('createSyncAccessHandle') || message.includes('Access Handle');
+}
+
+function markReloadAttempt(): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  try {
+    if (window.sessionStorage.getItem(RELOAD_KEY)) {
+      window.sessionStorage.removeItem(RELOAD_KEY);
+      return false;
+    }
+    window.sessionStorage.setItem(RELOAD_KEY, '1');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function rememberSuccessfulOpen(): void {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') {
+    return;
+  }
+  try {
+    window.sessionStorage.removeItem(RELOAD_KEY);
+  } catch {
+    // La sesión privada puede bloquear sessionStorage. La base igual quedó abierta.
+  }
+}
+
+function releaseDatabaseOnPageHide(db: SQLite.SQLiteDatabase): void {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') {
+    return;
+  }
+  window.addEventListener(
+    'pagehide',
+    () => {
+      void db.closeAsync();
+    },
+    { once: true },
+  );
 }
 
 async function migrate(db: SQLite.SQLiteDatabase): Promise<void> {
